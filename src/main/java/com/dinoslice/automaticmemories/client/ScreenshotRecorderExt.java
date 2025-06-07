@@ -2,7 +2,6 @@ package com.dinoslice.automaticmemories.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.util.ScreenshotRecorder;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Text;
@@ -28,20 +27,20 @@ public class ScreenshotRecorderExt {
     }
 
     private static void saveScreenshotInner(File saveDirectory, String prefix, Framebuffer framebuffer, String successKey, String failureKey, Consumer<Text> messageReceiver) {
-        NativeImage nativeImage = ScreenshotRecorder.takeScreenshot(framebuffer);
-        boolean ignored = saveDirectory.mkdirs();
+        ScreenshotRecorder.takeScreenshot(framebuffer, (nativeImage) -> {
+            boolean ignored = saveDirectory.mkdirs();
 
-        File screenshotFile = assignScreenshotFilename(saveDirectory, prefix);
+            File screenshotFile = assignScreenshotFilename(saveDirectory, prefix);
 
-        Util.getIoWorkerExecutor().execute(() -> {
-            try {
-                nativeImage.writeTo(screenshotFile);
+            Util.getIoWorkerExecutor().execute(() -> {
+                try {
+                    nativeImage.writeTo(screenshotFile);
 
-                Text text = Text.translatable("automaticmemories.screenshot.success.clickable")
-                    .formatted(Formatting.UNDERLINE)
-                    .styled(style -> style.withClickEvent(
-                        new ClickEvent(ClickEvent.Action.OPEN_FILE, screenshotFile.getAbsolutePath())
-                    ));
+                    Text text = Text.translatable("automaticmemories.screenshot.success.clickable")
+                            .formatted(Formatting.UNDERLINE)
+                            .styled(style -> style.withClickEvent(
+                                    new ClickEvent.OpenFile(screenshotFile.getAbsolutePath())
+                            ));
 
                 messageReceiver.accept(AutomaticMemories.addChatPrefix(
                     Text.translatable(
@@ -50,10 +49,10 @@ public class ScreenshotRecorderExt {
                     )
                 ));
 
-                AutomaticMemories.LOGGER.info("Saved automatic screenshot as {}, next screenshot in {} ms.", screenshotFile.toString(), Configuration.INTERVAL_MS);
+                    AutomaticMemories.LOGGER.info("Saved automatic screenshot as {}, next screenshot in {} ms.", screenshotFile.toString(), Configuration.INTERVAL_MS);
 
-            } catch (Exception e) {
-                AutomaticMemories.LOGGER.error("Couldn't save screenshot", e);
+                } catch (Exception e) {
+                    AutomaticMemories.LOGGER.error("Couldn't save screenshot", e);
 
                 messageReceiver.accept(AutomaticMemories.addChatPrefix(
                     Text.translatable(failureKey, e.getMessage()).formatted(Formatting.RED)
@@ -62,6 +61,7 @@ public class ScreenshotRecorderExt {
                 nativeImage.close();
             }
 
+            });
         });
     }
 
