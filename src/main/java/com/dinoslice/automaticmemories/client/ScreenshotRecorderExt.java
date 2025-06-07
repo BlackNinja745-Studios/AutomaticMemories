@@ -22,10 +22,9 @@ public class ScreenshotRecorderExt {
     }
 
     public static void saveScreenshot(File saveDirectory, String prefix, Framebuffer framebuffer, String successKey, String failureKey, Consumer<Text> messageReceiver) {
-        if (RenderSystem.isOnRenderThread())
-            saveScreenshotInner(saveDirectory, prefix, framebuffer, successKey, failureKey, messageReceiver);
-        else
-            RenderSystem.recordRenderCall(() -> saveScreenshotInner(saveDirectory, prefix, framebuffer, successKey, failureKey, messageReceiver));
+        RenderSystem.assertOnRenderThread();
+
+        saveScreenshotInner(saveDirectory, prefix, framebuffer, successKey, failureKey, messageReceiver);
     }
 
     private static void saveScreenshotInner(File saveDirectory, String prefix, Framebuffer framebuffer, String successKey, String failureKey, Consumer<Text> messageReceiver) {
