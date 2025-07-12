@@ -14,14 +14,21 @@ import java.io.File;
 import java.util.function.Consumer;
 
 public class ScreenshotRecorderExt {
+    public static final String DEFAULT_SUCCESS_KEY = "automaticmemories.screenshot.success.full";
+    public static final String DEFAULT_FAILURE_KEY = "automaticmemories.screenshot.failure";
+
     public static void saveScreenshot(File saveDirectory, String prefix, Framebuffer framebuffer, Consumer<Text> messageReceiver) {
-        if (RenderSystem.isOnRenderThread())
-            saveScreenshotInner(saveDirectory, prefix, framebuffer, messageReceiver);
-        else
-            RenderSystem.recordRenderCall(() -> saveScreenshotInner(saveDirectory, prefix, framebuffer, messageReceiver));
+        saveScreenshot(saveDirectory, prefix, framebuffer, DEFAULT_SUCCESS_KEY, DEFAULT_FAILURE_KEY, messageReceiver);
     }
 
-    private static void saveScreenshotInner(File saveDirectory, String prefix, Framebuffer framebuffer, Consumer<Text> messageReceiver) {
+    public static void saveScreenshot(File saveDirectory, String prefix, Framebuffer framebuffer, String successKey, String failureKey, Consumer<Text> messageReceiver) {
+        if (RenderSystem.isOnRenderThread())
+            saveScreenshotInner(saveDirectory, prefix, framebuffer, successKey, failureKey, messageReceiver);
+        else
+            RenderSystem.recordRenderCall(() -> saveScreenshotInner(saveDirectory, prefix, framebuffer, successKey, failureKey, messageReceiver));
+    }
+
+    private static void saveScreenshotInner(File saveDirectory, String prefix, Framebuffer framebuffer, String successKey, String failureKey, Consumer<Text> messageReceiver) {
         NativeImage nativeImage = ScreenshotRecorder.takeScreenshot(framebuffer);
         boolean ignored = saveDirectory.mkdirs();
 
@@ -39,7 +46,7 @@ public class ScreenshotRecorderExt {
 
                 messageReceiver.accept(AutomaticMemories.addChatPrefix(
                     Text.translatable(
-                        "automaticmemories.screenshot.success.full", text,
+                        successKey, text,
                         ScreenshotTimerSingleton.formatTime(Configuration.INTERVAL_MS)
                     )
                 ));
@@ -50,7 +57,7 @@ public class ScreenshotRecorderExt {
                 AutomaticMemories.LOGGER.error("Couldn't save screenshot", e);
 
                 messageReceiver.accept(AutomaticMemories.addChatPrefix(
-                    Text.translatable("automaticmemories.screenshot.failure", e.getMessage()).formatted(Formatting.RED)
+                    Text.translatable(failureKey, e.getMessage()).formatted(Formatting.RED)
                 ));
             } finally {
                 nativeImage.close();

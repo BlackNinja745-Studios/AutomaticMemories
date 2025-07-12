@@ -28,6 +28,8 @@ public class DeathScreenMixin {
                     Configuration.getFullDirectory(client.runDirectory, Configuration.SAVE_DIRECTORY),
                     Configuration.DEATH_PREFIX,
                     client.getFramebuffer(),
+                    "automaticmemories.screenshot.success.special.death",
+                    ScreenshotRecorderExt.DEFAULT_FAILURE_KEY,
                     msg -> client.execute(() -> {
                         if (Configuration.NOTIFY_PLAYER && client.inGameHud != null && client.world != null)
                             client.inGameHud.getChatHud().addMessage(msg);
