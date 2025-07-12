@@ -41,6 +41,10 @@ dependencies {
     modImplementation("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}")
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/automaticmemories.accesswidener")
+}
+
 processResources {
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
