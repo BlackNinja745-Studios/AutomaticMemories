@@ -26,10 +26,10 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "org.blackninja745studios.automaticmemories.client.AutomaticMemories"
+      "com.dinoslice.automaticmemories.client.AutomaticMemories"
     ],
     "modmenu": [
-      "org.blackninja745studios.automaticmemories.client.config.ModMenuIntegration"
+      "com.dinoslice.automaticmemories.client.config.ModMenuIntegration"
     ]
   },
   "custom": {

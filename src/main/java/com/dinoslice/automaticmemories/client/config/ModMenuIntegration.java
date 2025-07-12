@@ -1,4 +1,4 @@
-package org.blackninja745studios.automaticmemories.client.config;
+package com.dinoslice.automaticmemories.client.config;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
@@ -8,7 +8,7 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.blackninja745studios.automaticmemories.client.ScreenshotTimerSingleton;
+import com.dinoslice.automaticmemories.client.ScreenshotTimerSingleton;
 
 import java.io.File;
 import java.nio.file.Paths;

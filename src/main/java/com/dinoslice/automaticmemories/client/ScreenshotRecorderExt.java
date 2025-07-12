@@ -1,4 +1,4 @@
-package org.blackninja745studios.automaticmemories.client;
+package com.dinoslice.automaticmemories.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.Framebuffer;
@@ -8,7 +8,7 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
-import org.blackninja745studios.automaticmemories.client.config.Configuration;
+import com.dinoslice.automaticmemories.client.config.Configuration;
 
 import java.io.File;
 import java.util.function.Consumer;
