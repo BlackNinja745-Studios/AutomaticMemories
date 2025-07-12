@@ -1,6 +1,6 @@
-package org.blackninja745studios.automaticmemories.client.config;
+package com.dinoslice.automaticmemories.client.config;
 
-import org.blackninja745studios.automaticmemories.client.AutomaticMemories;
+import com.dinoslice.automaticmemories.client.AutomaticMemories;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.BufferedReader;

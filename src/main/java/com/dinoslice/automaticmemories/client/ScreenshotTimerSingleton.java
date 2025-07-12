@@ -1,7 +1,7 @@
-package org.blackninja745studios.automaticmemories.client;
+package com.dinoslice.automaticmemories.client;
 
 import net.minecraft.client.MinecraftClient;
-import org.blackninja745studios.automaticmemories.client.config.Configuration;
+import com.dinoslice.automaticmemories.client.config.Configuration;
 
 import java.time.Duration;
 import java.time.Instant;

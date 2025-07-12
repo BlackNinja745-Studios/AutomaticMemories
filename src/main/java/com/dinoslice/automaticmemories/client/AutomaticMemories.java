@@ -1,4 +1,4 @@
-package org.blackninja745studios.automaticmemories.client;
+package com.dinoslice.automaticmemories.client;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -7,7 +7,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.blackninja745studios.automaticmemories.client.config.Configuration;
+import com.dinoslice.automaticmemories.client.config.Configuration;
 
 public class AutomaticMemories implements ClientModInitializer {
     public static final Logger LOGGER = LogManager.getLogger();
