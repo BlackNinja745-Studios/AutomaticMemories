@@ -6,12 +6,14 @@ import net.minecraft.client.gui.screen.DeathScreen;
 import com.dinoslice.automaticmemories.client.ScreenshotRecorderExt;
 import com.dinoslice.automaticmemories.client.config.Configuration;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(DeathScreen.class)
 public class DeathScreenMixin {
+    @Unique
     private static boolean TOOK_FOR_DEATH = false;
 
     @Inject(method = "init", at = @At("TAIL"))
