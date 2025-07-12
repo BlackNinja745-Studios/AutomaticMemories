@@ -42,6 +42,8 @@
   "automaticmemories.config.miscellaneous.notify_player.tooltip.disabled_warnings": "When this is disabled, errors aren't sent either",
 
   "automaticmemories.screenshot.success.full": "Automatically saved %s, next screenshot in %s.",
+  "automaticmemories.screenshot.success.special.advancement": "Automatically saved %s for advancement.",
+  "automaticmemories.screenshot.success.special.death": "Automatically saved %s for death.",
   "automaticmemories.screenshot.success.clickable": "screenshot",
   "automaticmemories.screenshot.failure": "Couldn't save automatic screenshot: %s"
 }

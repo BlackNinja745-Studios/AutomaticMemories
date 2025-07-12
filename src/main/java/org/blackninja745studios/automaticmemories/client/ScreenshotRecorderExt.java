@@ -13,13 +13,20 @@ import java.io.File;
 import java.util.function.Consumer;
 
 public class ScreenshotRecorderExt {
-    public static void saveScreenshot(File saveDirectory, String prefix, Framebuffer framebuffer, Consumer<Text> messageReceiver) {
-        RenderSystem.assertOnRenderThread();
+    public static final String DEFAULT_SUCCESS_KEY = "automaticmemories.screenshot.success.full";
+    public static final String DEFAULT_FAILURE_KEY = "automaticmemories.screenshot.failure";
 
-        saveScreenshotInner(saveDirectory, prefix, framebuffer, messageReceiver);
+    public static void saveScreenshot(File saveDirectory, String prefix, Framebuffer framebuffer, Consumer<Text> messageReceiver) {
+        saveScreenshot(saveDirectory, prefix, framebuffer, DEFAULT_SUCCESS_KEY, DEFAULT_FAILURE_KEY, messageReceiver);
     }
 
-    private static void saveScreenshotInner(File saveDirectory, String prefix, Framebuffer framebuffer, Consumer<Text> messageReceiver) {
+    public static void saveScreenshot(File saveDirectory, String prefix, Framebuffer framebuffer, String successKey, String failureKey, Consumer<Text> messageReceiver) {
+        RenderSystem.assertOnRenderThread();
+
+        saveScreenshotInner(saveDirectory, prefix, framebuffer, successKey, failureKey, messageReceiver);
+    }
+
+    private static void saveScreenshotInner(File saveDirectory, String prefix, Framebuffer framebuffer, String successKey, String failureKey, Consumer<Text> messageReceiver) {
         ScreenshotRecorder.takeScreenshot(framebuffer, (nativeImage) -> {
             boolean ignored = saveDirectory.mkdirs();
 
@@ -35,24 +42,24 @@ public class ScreenshotRecorderExt {
                                     new ClickEvent.OpenFile(screenshotFile.getAbsolutePath())
                             ));
 
-                    messageReceiver.accept(AutomaticMemories.addChatPrefix(
-                            Text.translatable(
-                                    "automaticmemories.screenshot.success.full", text,
-                                    ScreenshotTimerSingleton.formatTime(Configuration.INTERVAL_MS)
-                            )
-                    ));
+                messageReceiver.accept(AutomaticMemories.addChatPrefix(
+                    Text.translatable(
+                        successKey, text,
+                        ScreenshotTimerSingleton.formatTime(Configuration.INTERVAL_MS)
+                    )
+                ));
 
                     AutomaticMemories.LOGGER.info("Saved automatic screenshot as {}, next screenshot in {} ms.", screenshotFile.toString(), Configuration.INTERVAL_MS);
 
                 } catch (Exception e) {
                     AutomaticMemories.LOGGER.error("Couldn't save screenshot", e);
 
-                    messageReceiver.accept(AutomaticMemories.addChatPrefix(
-                            Text.translatable("automaticmemories.screenshot.failure", e.getMessage()).formatted(Formatting.RED)
-                    ));
-                } finally {
-                    nativeImage.close();
-                }
+                messageReceiver.accept(AutomaticMemories.addChatPrefix(
+                    Text.translatable(failureKey, e.getMessage()).formatted(Formatting.RED)
+                ));
+            } finally {
+                nativeImage.close();
+            }
 
             });
         });

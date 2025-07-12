@@ -1,8 +1,8 @@
 package org.blackninja745studios.automaticmemories.client.mixin;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.DeathScreen;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.packet.s2c.play.AdvancementUpdateS2CPacket;
 import org.blackninja745studios.automaticmemories.client.ScreenshotRecorderExt;
 import org.blackninja745studios.automaticmemories.client.config.Configuration;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,33 +10,29 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(DeathScreen.class)
-public class DeathScreenMixin {
-    private static boolean TOOK_FOR_DEATH = false;
-
-    @Inject(method = "init", at = @At("TAIL"))
-    public void init(CallbackInfo info) {
-        TOOK_FOR_DEATH = false;
-    }
-
-    @Inject(method = "render", at = @At("TAIL"))
-    public void render(DrawContext matrices, int mouseX, int mouseY, float delta, CallbackInfo info) {
+@Mixin(AdvancementUpdateS2CPacket.class)
+public class AdvancementUpdateMixin {
+    @Inject(method = "<init>(Lnet/minecraft/network/RegistryByteBuf;)V", at = @At("RETURN"))
+    public void init(RegistryByteBuf buf, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
+        AdvancementUpdateS2CPacket packet = (AdvancementUpdateS2CPacket) (Object) this;
 
-        if (client != null && Configuration.ENABLED && Configuration.SCREENSHOT_DEATH && !TOOK_FOR_DEATH) {
+        if (packet.shouldClearCurrent())
+            return;
+
+        boolean containsRealAdvancement = packet.getAdvancementsToEarn().stream().anyMatch(entry -> !entry.value().isRoot());
+
+        if (client != null && Configuration.ENABLED && Configuration.SCREENSHOT_ADVANCEMENT && containsRealAdvancement)
             client.execute(() -> ScreenshotRecorderExt.saveScreenshot(
                     Configuration.getFullDirectory(client.runDirectory, Configuration.SAVE_DIRECTORY),
-                    Configuration.DEATH_PREFIX,
+                    Configuration.ADVANCEMENT_PREFIX,
                     client.getFramebuffer(),
-                    "automaticmemories.screenshot.success.special.death",
+                    "automaticmemories.screenshot.success.special.advancement",
                     ScreenshotRecorderExt.DEFAULT_FAILURE_KEY,
                     msg -> client.execute(() -> {
                         if (Configuration.NOTIFY_PLAYER && client.inGameHud != null && client.world != null)
                             client.inGameHud.getChatHud().addMessage(msg);
                     })
-                    )
-            );
-            TOOK_FOR_DEATH = true;
-        }
+            ));
     }
 }
