@@ -41,8 +41,8 @@ public class Configuration {
 
             ENABLED = Boolean.parseBoolean(properties.getProperty("enabled", String.valueOf(ENABLED)));
 
-            SCREENSHOT_DEATH = Boolean.parseBoolean(properties.getProperty("screenshot_death", String.valueOf(ENABLED)));
-            SCREENSHOT_ADVANCEMENT = Boolean.parseBoolean(properties.getProperty("screenshot_advancement", String.valueOf(ENABLED)));
+            SCREENSHOT_DEATH = Boolean.parseBoolean(properties.getProperty("screenshot_death", String.valueOf(SCREENSHOT_DEATH)));
+            SCREENSHOT_ADVANCEMENT = Boolean.parseBoolean(properties.getProperty("screenshot_advancement", String.valueOf(SCREENSHOT_ADVANCEMENT)));
 
             // auto screenshot interval
             INTERVAL_MS = Math.max(0, Long.parseLong(properties.getProperty("interval_ms", String.valueOf(INTERVAL_MS))));
@@ -67,6 +67,9 @@ public class Configuration {
         Properties properties = new Properties(1);
 
         properties.put("enabled", String.valueOf(ENABLED));
+
+        properties.put("screenshot_death", String.valueOf(SCREENSHOT_DEATH));
+        properties.put("screenshot_advancement", String.valueOf(SCREENSHOT_ADVANCEMENT));
 
         properties.put("interval_ms", String.valueOf(INTERVAL_MS));
         properties.put("leftover_interval_ms", String.valueOf(LEFTOVER_INTERVAL_MS));
