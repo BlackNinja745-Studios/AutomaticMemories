@@ -1,8 +1,8 @@
 package com.dinoslice.automaticmemories.client.mixin;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.packet.s2c.play.AdvancementUpdateS2CPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
 import com.dinoslice.automaticmemories.client.ScreenshotRecorderExt;
 import com.dinoslice.automaticmemories.client.config.Configuration;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,28 +10,28 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(AdvancementUpdateS2CPacket.class)
+@Mixin(ClientboundUpdateAdvancementsPacket.class)
 public class AdvancementUpdateMixin {
-    @Inject(method = "<init>(Lnet/minecraft/network/RegistryByteBuf;)V", at = @At("RETURN"))
-    public void init(RegistryByteBuf buf, CallbackInfo ci) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        AdvancementUpdateS2CPacket packet = (AdvancementUpdateS2CPacket) (Object) this;
+    @Inject(method = "<init>(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V", at = @At("RETURN"))
+    public void init(RegistryFriendlyByteBuf buf, CallbackInfo ci) {
+        Minecraft client = Minecraft.getInstance();
+        ClientboundUpdateAdvancementsPacket packet = (ClientboundUpdateAdvancementsPacket) (Object) this;
 
-        if (packet.shouldClearCurrent())
+        if (packet.shouldReset())
             return;
 
-        boolean containsRealAdvancement = packet.getAdvancementsToEarn().stream().anyMatch(entry -> !entry.value().isRoot());
+        boolean containsRealAdvancement = packet.getAdded().stream().anyMatch(entry -> !entry.value().isRoot());
 
         if (client != null && Configuration.ENABLED && Configuration.SCREENSHOT_ADVANCEMENT && containsRealAdvancement)
             client.execute(() -> ScreenshotRecorderExt.saveScreenshot(
-                    Configuration.getFullDirectory(client.runDirectory, Configuration.SAVE_DIRECTORY),
+                    Configuration.getFullDirectory(client.gameDirectory, Configuration.SAVE_DIRECTORY),
                     Configuration.ADVANCEMENT_PREFIX,
-                    client.getFramebuffer(),
+                    client.gameRenderer.mainRenderTarget(),
                     "automaticmemories.screenshot.success.special.advancement",
                     ScreenshotRecorderExt.DEFAULT_FAILURE_KEY,
                     msg -> client.execute(() -> {
-                        if (Configuration.NOTIFY_PLAYER && client.inGameHud != null && client.world != null)
-                            client.inGameHud.getChatHud().addMessage(msg);
+                        if (Configuration.NOTIFY_PLAYER && client.gui != null && client.level != null)
+                            client.gui.hud.getChat().addClientSystemMessage(msg);
                     })
             ));
     }

@@ -1,8 +1,8 @@
 package com.dinoslice.automaticmemories.client.mixin;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.DeathScreen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.DeathScreen;
 import com.dinoslice.automaticmemories.client.ScreenshotRecorderExt;
 import com.dinoslice.automaticmemories.client.config.Configuration;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,20 +21,20 @@ public class DeathScreenMixin {
         TOOK_FOR_DEATH = false;
     }
 
-    @Inject(method = "render", at = @At("TAIL"))
-    public void render(DrawContext matrices, int mouseX, int mouseY, float delta, CallbackInfo info) {
-        MinecraftClient client = MinecraftClient.getInstance();
+    @Inject(method = "extractRenderState", at = @At("TAIL"))
+    public void extractRenderState(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float delta, CallbackInfo info) {
+        Minecraft client = Minecraft.getInstance();
 
         if (client != null && Configuration.ENABLED && Configuration.SCREENSHOT_DEATH && !TOOK_FOR_DEATH) {
             client.execute(() -> ScreenshotRecorderExt.saveScreenshot(
-                    Configuration.getFullDirectory(client.runDirectory, Configuration.SAVE_DIRECTORY),
+                    Configuration.getFullDirectory(client.gameDirectory, Configuration.SAVE_DIRECTORY),
                     Configuration.DEATH_PREFIX,
-                    client.getFramebuffer(),
+                    client.gameRenderer.mainRenderTarget(),
                     "automaticmemories.screenshot.success.special.death",
                     ScreenshotRecorderExt.DEFAULT_FAILURE_KEY,
                     msg -> client.execute(() -> {
-                        if (Configuration.NOTIFY_PLAYER && client.inGameHud != null && client.world != null)
-                            client.inGameHud.getChatHud().addMessage(msg);
+                        if (Configuration.NOTIFY_PLAYER && client.gui != null && client.level != null)
+                            client.gui.hud.getChat().addClientSystemMessage(msg);
                     })
                     )
             );

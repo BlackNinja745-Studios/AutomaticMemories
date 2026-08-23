@@ -2,9 +2,9 @@ package com.dinoslice.automaticmemories.client;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.dinoslice.automaticmemories.client.config.Configuration;
@@ -31,12 +31,12 @@ public class AutomaticMemories implements ClientModInitializer {
         });
     }
 
-    public static MutableText addChatPrefix(Text text) {
-        return Text.literal("")
-            .append(Text.literal("[").formatted(Formatting.DARK_GRAY))
-            .append(Text.translatable("automaticmemories.chat_prefix.first").formatted(Formatting.LIGHT_PURPLE))
-            .append(Text.translatable("automaticmemories.chat_prefix.second").formatted(Formatting.BLUE))
-            .append(Text.literal("] ").formatted(Formatting.DARK_GRAY))
+    public static MutableComponent addChatPrefix(Component text) {
+        return Component.literal("")
+            .append(Component.literal("[").withStyle(ChatFormatting.DARK_GRAY))
+            .append(Component.translatable("automaticmemories.chat_prefix.first").withStyle(ChatFormatting.LIGHT_PURPLE))
+            .append(Component.translatable("automaticmemories.chat_prefix.second").withStyle(ChatFormatting.BLUE))
+            .append(Component.literal("] ").withStyle(ChatFormatting.DARK_GRAY))
             .append(text);
     }
 }
