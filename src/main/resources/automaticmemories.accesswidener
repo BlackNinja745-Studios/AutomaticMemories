@@ -1,3 +1,3 @@
-accessWidener v2 named
+accessWidener v2 official
 
-accessible method net/minecraft/network/packet/s2c/play/AdvancementUpdateS2CPacket <init> (Lnet/minecraft/network/RegistryByteBuf;)V
+accessible method net/minecraft/network/protocol/game/ClientboundUpdateAdvancementsPacket <init> (Lnet/minecraft/network/RegistryFriendlyByteBuf;)V

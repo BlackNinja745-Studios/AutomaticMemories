@@ -1,11 +1,11 @@
 package com.dinoslice.automaticmemories.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.util.ScreenshotRecorder;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import net.minecraft.client.Screenshot;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.minecraft.util.Util;
 import com.dinoslice.automaticmemories.client.config.Configuration;
 
@@ -16,34 +16,34 @@ public class ScreenshotRecorderExt {
     public static final String DEFAULT_SUCCESS_KEY = "automaticmemories.screenshot.success.full";
     public static final String DEFAULT_FAILURE_KEY = "automaticmemories.screenshot.failure";
 
-    public static void saveScreenshot(File saveDirectory, String prefix, Framebuffer framebuffer, Consumer<Text> messageReceiver) {
+    public static void saveScreenshot(File saveDirectory, String prefix, RenderTarget framebuffer, Consumer<Component> messageReceiver) {
         saveScreenshot(saveDirectory, prefix, framebuffer, DEFAULT_SUCCESS_KEY, DEFAULT_FAILURE_KEY, messageReceiver);
     }
 
-    public static void saveScreenshot(File saveDirectory, String prefix, Framebuffer framebuffer, String successKey, String failureKey, Consumer<Text> messageReceiver) {
+    public static void saveScreenshot(File saveDirectory, String prefix, RenderTarget framebuffer, String successKey, String failureKey, Consumer<Component> messageReceiver) {
         RenderSystem.assertOnRenderThread();
 
         saveScreenshotInner(saveDirectory, prefix, framebuffer, successKey, failureKey, messageReceiver);
     }
 
-    private static void saveScreenshotInner(File saveDirectory, String prefix, Framebuffer framebuffer, String successKey, String failureKey, Consumer<Text> messageReceiver) {
-        ScreenshotRecorder.takeScreenshot(framebuffer, (nativeImage) -> {
+    private static void saveScreenshotInner(File saveDirectory, String prefix, RenderTarget framebuffer, String successKey, String failureKey, Consumer<Component> messageReceiver) {
+        Screenshot.takeScreenshot(framebuffer, (nativeImage) -> {
             boolean ignored = saveDirectory.mkdirs();
 
             File screenshotFile = assignScreenshotFilename(saveDirectory, prefix);
 
-            Util.getIoWorkerExecutor().execute(() -> {
+            Util.ioPool().execute(() -> {
                 try {
-                    nativeImage.writeTo(screenshotFile);
+                    nativeImage.writeToFile(screenshotFile);
 
-                    Text text = Text.translatable("automaticmemories.screenshot.success.clickable")
-                            .formatted(Formatting.UNDERLINE)
-                            .styled(style -> style.withClickEvent(
+                    Component text = Component.translatable("automaticmemories.screenshot.success.clickable")
+                            .withStyle(ChatFormatting.UNDERLINE)
+                            .withStyle(style -> style.withClickEvent(
                                     new ClickEvent.OpenFile(screenshotFile.getAbsolutePath())
                             ));
 
                 messageReceiver.accept(AutomaticMemories.addChatPrefix(
-                    Text.translatable(
+                    Component.translatable(
                         successKey, text,
                         ScreenshotTimerSingleton.formatTime(Configuration.INTERVAL_MS)
                     )
@@ -55,7 +55,7 @@ public class ScreenshotRecorderExt {
                     AutomaticMemories.LOGGER.error("Couldn't save screenshot", e);
 
                 messageReceiver.accept(AutomaticMemories.addChatPrefix(
-                    Text.translatable(failureKey, e.getMessage()).formatted(Formatting.RED)
+                    Component.translatable(failureKey, e.getMessage()).withStyle(ChatFormatting.RED)
                 ));
             } finally {
                 nativeImage.close();
@@ -66,7 +66,7 @@ public class ScreenshotRecorderExt {
     }
 
     private static File assignScreenshotFilename(File directory, String prefix) {
-        String name = prefix + Util.getFormattedCurrentTime();
+        String name = prefix + Util.getFilenameFormattedDateTime();
 
         int i = 1;
         File file;

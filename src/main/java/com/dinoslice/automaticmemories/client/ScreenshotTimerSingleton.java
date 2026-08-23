@@ -1,6 +1,6 @@
 package com.dinoslice.automaticmemories.client;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import com.dinoslice.automaticmemories.client.config.Configuration;
 
 import java.time.Duration;
@@ -24,11 +24,12 @@ public class ScreenshotTimerSingleton {
         lastScreenshotTime = Instant.now().minusMillis(intervalMs - delayBeforeFirst);
 
         timer.schedule(new TimerTask() {
-            private final MinecraftClient client = MinecraftClient.getInstance();
+            private final Minecraft client = Minecraft.getInstance();
 
             @Override
             public void run() {
-                if (client != null && client.getFramebuffer() != null)
+                // gameRenderer bir alan; timer thread'i acilis sirasinda o daha null iken de tetikleniyor
+                if (client != null && client.gameRenderer != null)
                     client.execute(() -> takeScreenshot(client));
 
                 lastScreenshotTime = Instant.now();
@@ -45,19 +46,19 @@ public class ScreenshotTimerSingleton {
         return Duration.between(lastScreenshotTime, Instant.now()).toMillis();
     }
 
-    public static void takeScreenshot(MinecraftClient client) {
-        boolean worldReq = !Configuration.REQUIRE_IN_WORLD || client.world != null;
+    public static void takeScreenshot(Minecraft client) {
+        boolean worldReq = !Configuration.REQUIRE_IN_WORLD || client.level != null;
 
-        boolean unpausedReq = !Configuration.REQUIRE_UNPAUSED || client.world == null || !client.isPaused();
+        boolean unpausedReq = !Configuration.REQUIRE_UNPAUSED || client.level == null || !client.isPaused();
 
         if (worldReq && unpausedReq) {
             ScreenshotRecorderExt.saveScreenshot(
-                    Configuration.getFullDirectory(client.runDirectory, Configuration.SAVE_DIRECTORY),
+                    Configuration.getFullDirectory(client.gameDirectory, Configuration.SAVE_DIRECTORY),
                     Configuration.SCREENSHOT_PREFIX,
-                    client.getFramebuffer(),
+                    client.gameRenderer.mainRenderTarget(),
                     msg -> client.execute(() -> {
-                        if (Configuration.NOTIFY_PLAYER && client.inGameHud != null && client.world != null)
-                            client.inGameHud.getChatHud().addMessage(msg);
+                        if (Configuration.NOTIFY_PLAYER && client.gui != null && client.level != null)
+                            client.gui.hud.getChat().addClientSystemMessage(msg);
                     })
             );
         }
